@@ -77,16 +77,16 @@ jobs:
           context: .
           file: ${{ env.DOCKERFILE }}
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ matrix.name }}:${{ env.GIT_TAG }}
 
       - name: Tag and push as latest (if release)
         if: env.IS_RELEASE == 'true'
         run: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ matrix.name }}:${{ env.GIT_TAG }}
-          docker tag ${{ secrets.DOCKER_USERNAME }}/${{ matrix.name }}:${{ env.GIT_TAG }} \
-                     ${{ secrets.DOCKER_USERNAME }}/${{ matrix.name }}:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ matrix.name }}:latest
+          docker buildx imagetools create \
+            --tag ${{ secrets.DOCKER_USERNAME }}/${{ matrix.name }}:latest \
+            ${{ secrets.DOCKER_USERNAME }}/${{ matrix.name }}:${{ env.GIT_TAG }}
 
       - name: Log out of Docker Hub
         run: docker logout
