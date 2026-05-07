@@ -36,7 +36,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y git ffmpeg
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pytest jiwer
+        run: |
+          git clone --depth 1 https://github.com/jhj0517/jhj0517-whisper.git /tmp/jhj0517-whisper
+          python3 scripts/patch_whisper_dep.py /tmp/jhj0517-whisper
+          pip install /tmp/jhj0517-whisper
+          grep -v 'jhj0517-whisper' requirements.txt > /tmp/req.txt
+          pip install -r /tmp/req.txt pytest jiwer
 
       - name: Run test
         run: python -m pytest -rs tests
@@ -65,7 +70,14 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y git ffmpeg
 
       - name: Install dependencies
-        run: pip install -r backend/requirements-backend.txt pytest pytest-asyncio jiwer
+        run: |
+          git clone --depth 1 https://github.com/jhj0517/jhj0517-whisper.git /tmp/jhj0517-whisper
+          python3 scripts/patch_whisper_dep.py /tmp/jhj0517-whisper
+          pip install /tmp/jhj0517-whisper
+          mkdir -p /tmp/filtered/backend
+          grep -v 'jhj0517-whisper' requirements.txt > /tmp/filtered/requirements.txt
+          cp backend/requirements-backend.txt /tmp/filtered/backend/
+          pip install -r /tmp/filtered/backend/requirements-backend.txt pytest pytest-asyncio jiwer
 
       - name: Run test
         run: python -m pytest -rs backend/tests

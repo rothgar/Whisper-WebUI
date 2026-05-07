@@ -8,10 +8,15 @@ RUN apt-get update && \
 WORKDIR /Whisper-WebUI
 
 COPY requirements.txt .
+COPY scripts/patch_whisper_dep.py /tmp/
 
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
-    pip install -U -r requirements.txt
+    git clone --depth 1 https://github.com/jhj0517/jhj0517-whisper.git /tmp/jhj0517-whisper && \
+    python3 /tmp/patch_whisper_dep.py /tmp/jhj0517-whisper && \
+    pip install /tmp/jhj0517-whisper && \
+    grep -v 'jhj0517-whisper' requirements.txt > /tmp/req.txt && \
+    pip install -U -r /tmp/req.txt
 
 
 FROM debian:bookworm-slim AS runtime

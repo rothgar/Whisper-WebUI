@@ -9,9 +9,15 @@ WORKDIR /Whisper-WebUI
 
 COPY backend/ backend/
 COPY requirements.txt requirements.txt
+COPY scripts/patch_whisper_dep.py /tmp/
 
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
+    git clone --depth 1 https://github.com/jhj0517/jhj0517-whisper.git /tmp/jhj0517-whisper && \
+    python3 /tmp/patch_whisper_dep.py /tmp/jhj0517-whisper && \
+    pip install /tmp/jhj0517-whisper && \
+    grep -v 'jhj0517-whisper' requirements.txt > /tmp/req.txt && \
+    mv /tmp/req.txt requirements.txt && \
     pip install -U -r backend/requirements-backend.txt
 
 
